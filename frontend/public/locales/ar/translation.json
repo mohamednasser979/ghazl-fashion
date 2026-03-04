@@ -1,0 +1,34 @@
+{
+  "home": "الرئيسية",
+  "products": "المنتجات",
+  "cart": "السلة",
+  "checkout": "إتمام الطلب",
+
+  "emptyCart": "السلة فارغة",
+  "yourCart": "سلة التسوق",
+
+  "shippingAddress": "عنوان الشحن",
+  "fullName": "الاسم بالكامل",
+  "phone": "رقم الهاتف",
+  "address": "العنوان",
+  "city": "المدينة",
+
+  "orderSummary": "ملخص الطلب",
+  "total": "الإجمالي",
+
+  "placeOrder": "تنفيذ الطلب",
+  "payNow": "ادفع الآن",
+
+  "paymentSuccess": "تم الدفع بنجاح",
+  "thankYouOrder": "شكراً لطلبك ❤️",
+  "continueShopping": "متابعة التسوق",
+
+  "paymentFailed": "فشل الدفع",
+    "tryAgain": "حدث خطأ أثناء عملية الدفع",
+    "retryPayment": "إعادة المحاولة",
+
+    "myOrders": "طلباتي",
+    "noOrders": "لا توجد طلبات",
+    "status": "حالة الطلب"
+
+}

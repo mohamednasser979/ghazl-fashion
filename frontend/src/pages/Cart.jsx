@@ -1,0 +1,113 @@
+import { useCart } from "../context/CartContext";
+import { useTranslation } from "react-i18next";
+
+export default function Cart() {
+
+  const { cart, removeFromCart, addToCart, decreaseQty } = useCart();
+  const { t } = useTranslation();
+
+  const increaseQty = (item) => {
+    addToCart({ ...item, qty: 1 });
+  };
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+  if (cart.length === 0)
+    return (
+      <div className="container mt-5 pt-5 text-center">
+        <h4>{t("emptyCart")} 😎</h4>
+      </div>
+    );
+
+  return (
+    <div className="container mt-5 pt-5">
+      <h2 className="mb-4">{t("yourCart")}</h2>
+
+      {cart.map((item, index) => (
+
+        <div
+          key={index}
+          className="d-flex align-items-center border-bottom py-3"
+        >
+
+          {/* IMAGE */}
+          <img
+            src={`http://localhost:5000/uploads/${item.images?.[0] || item.image}`}
+            alt={item.name}
+            width="80"
+            className="rounded me-3"
+          />
+
+          {/* INFO */}
+          <div className="flex-grow-1">
+
+            <h6 className="mb-1">{item.name}</h6>
+
+            <small className="text-muted">
+              ${item.price}
+            </small>
+
+            <small className="text-muted d-block">
+              Size: {item.selectedSize}
+            </small>
+
+            <small className="text-muted">
+              Color: {item.selectedColor}
+            </small>
+
+          </div>
+
+          {/* QUANTITY */}
+          <div className="d-flex align-items-center">
+
+            <button
+              className="btn btn-sm btn-outline-dark"
+              onClick={() => decreaseQty(index)}
+            >
+              −
+            </button>
+
+            <span className="mx-2">
+              {item.qty}
+            </span>
+
+            <button
+              className="btn btn-sm btn-outline-dark"
+              onClick={() => increaseQty(item)}
+            >
+              +
+            </button>
+
+          </div>
+
+          {/* REMOVE */}
+          <button
+            className="btn btn-sm btn-danger ms-3"
+            onClick={() => removeFromCart(index)}
+          >
+            {t("remove")}
+          </button>
+
+        </div>
+
+      ))}
+
+      <hr />
+
+      <div className="d-flex justify-content-between">
+        <h5>Total:</h5>
+        <h5>${total}</h5>
+      </div>
+
+      <a href="/checkout">
+        <button className="btn btn-dark w-100 mt-3">
+          {t("checkout")}
+        </button>
+      </a>
+
+    </div>
+  );
+}

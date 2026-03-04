@@ -1,0 +1,35 @@
+{
+  "home": "Home",
+  "products": "Products",
+  "cart": "Cart",
+  "checkout": "Checkout",
+
+  "emptyCart": "Cart is empty",
+  "yourCart": "Your Cart",
+
+  "shippingAddress": "Shipping Address",
+  "fullName": "Full Name",
+  "phone": "Phone",
+  "address": "Address",
+  "city": "City",
+
+  "orderSummary": "Order Summary",
+  "total": "Total",
+
+  "placeOrder": "Place Order",
+  "payNow": "Pay Now",
+
+  "paymentSuccess": "Payment Successful",
+  "thankYouOrder": "Thank you for your purchase",
+  "continueShopping": "Continue Shopping",
+
+  "paymentFailed": "Payment Failed",
+    "tryAgain": "Something went wrong during payment",
+    "retryPayment": "Retry Payment",
+
+    "myOrders": "My Orders",
+    "noOrders": "No Orders Yet",
+    "status": "Order Status"
+
+
+}

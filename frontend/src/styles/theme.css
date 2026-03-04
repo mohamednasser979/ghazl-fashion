@@ -1,0 +1,63 @@
+:root {
+  --gold: #c8a46e;
+  --dark: #111111;
+  --light: #ffffff;
+  --beige: #f6f2ec;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--light);
+  color: var(--dark);
+}
+.hero-section {
+  height: 80vh;
+  background: linear-gradient(
+      rgba(255, 255, 255, 0.85),
+      rgba(255, 255, 255, 0.85)
+    ),
+    url("https://images.unsplash.com/photo-1520975922284-9fbb1c2c9c46");
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 600;
+}
+
+.hero-subtitle {
+  color: #777;
+  margin-top: 10px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+}
+.product-card img {
+  height: 260px;
+  object-fit: cover;
+}
+
+.product-card {
+  border: none;
+  transition: transform 0.3s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="rtl"] .navbar-nav {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .text-center {
+  text-align: center;
+}
