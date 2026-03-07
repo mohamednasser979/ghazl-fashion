@@ -27,7 +27,17 @@ return (
       GHAZL
     </Link>
 
-    <div className="collapse navbar-collapse">
+    {/* Mobile button */}
+    <button
+      className="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
+      <span className="navbar-toggler-icon"></span>
+    </button>
+
+    <div className="collapse navbar-collapse" id="navbarNav">
 
       <ul className="navbar-nav ms-auto">
 
@@ -64,7 +74,7 @@ return (
         {token && (
           <li className="nav-item">
             <button
-              className="btn btn-dark ms-2"
+              className="btn btn-dark ms-lg-3 mt-2 mt-lg-0"
               onClick={handleLogout}
             >
               Logout
