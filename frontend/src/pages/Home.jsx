@@ -56,10 +56,9 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      
       {/* New Section */}
       
-
     </>
   );
 }
