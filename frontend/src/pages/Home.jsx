@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import image from "../assets/ABAYA/BRONZE (1).jpeg";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -10,6 +11,7 @@ export default function Home() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-overlay">
+          <img src={image} alt="Hero" className="hero-image" />
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
