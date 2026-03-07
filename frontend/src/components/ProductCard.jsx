@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 export default function ProductCard({ product }) {
 
+  const API = "https://ghazl-fashion-production.up.railway.app";
+
   const { addToCart } = useCart();
 
   return (
@@ -12,7 +14,7 @@ export default function ProductCard({ product }) {
       <Link to={`/products/${product._id}`}>
 
         <img
-          src={`http://localhost:5000/uploads/${product.images?.[0]}`}
+          src={`${API}/uploads/${product.images?.[0]}`}
           alt={product.name}
           className="card-img-top"
           style={{
