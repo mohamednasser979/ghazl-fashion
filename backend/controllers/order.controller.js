@@ -4,20 +4,20 @@ const Order = require("../models/Order");
 // GET ALL ORDERS (Admin)
 // ==========================
 
-exports.getAllOrders = async (req,res)=>{
+exports.getAllOrders = async (req, res) => {
+  try {
 
-  try{
-
-    const orders = await Order.find().sort({createdAt:-1});
+    const orders = await Order.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
 
     res.json(orders);
 
-  }catch(error){
+  } catch (error) {
 
-    res.status(500).json({message:"Server error"});
+    res.status(500).json({ message: "Server error" });
 
   }
-
 };
 
 
@@ -25,24 +25,22 @@ exports.getAllOrders = async (req,res)=>{
 // UPDATE ORDER STATUS
 // ==========================
 
-exports.updateOrderStatus = async (req,res)=>{
-
-  try{
+exports.updateOrderStatus = async (req, res) => {
+  try {
 
     const order = await Order.findByIdAndUpdate(
       req.params.id,
-      {orderStatus:req.body.orderStatus},
-      {new:true}
+      { orderStatus: req.body.orderStatus },
+      { new: true }
     );
 
     res.json(order);
 
-  }catch(error){
+  } catch (error) {
 
-    res.status(500).json({message:"Server error"});
+    res.status(500).json({ message: "Server error" });
 
   }
-
 };
 
 
@@ -50,20 +48,18 @@ exports.updateOrderStatus = async (req,res)=>{
 // DELETE ORDER
 // ==========================
 
-exports.deleteOrder = async (req,res)=>{
-
-  try{
+exports.deleteOrder = async (req, res) => {
+  try {
 
     await Order.findByIdAndDelete(req.params.id);
 
-    res.json({message:"Order deleted successfully"});
+    res.json({ message: "Order deleted successfully" });
 
-  }catch(error){
+  } catch (error) {
 
-    res.status(500).json({message:"Server error"});
+    res.status(500).json({ message: "Server error" });
 
   }
-
 };
 
 
@@ -71,33 +67,39 @@ exports.deleteOrder = async (req,res)=>{
 // CREATE ORDER
 // ==========================
 
-exports.createOrder = async (req,res)=>{
+exports.createOrder = async (req, res) => {
 
-  try{
+  try {
 
-    const {items,totalPrice,shippingAddress} = req.body;
+    const { items, totalPrice, shippingAddress } = req.body;
 
-    if(!items || items.length === 0){
+    if (!items || items.length === 0) {
 
-      return res.status(400).json({message:"No order items"});
+      return res.status(400).json({ message: "No order items" });
 
     }
 
     const order = new Order({
+
+      user: req.user.id,   // 🔥 هذا كان ناقص
+
       items,
       totalPrice,
-      shippingAddress
+      shippingAddress,
+
+      orderStatus: "Pending"
+
     });
 
     await order.save();
 
     res.status(201).json(order);
 
-  }catch(error){
+  } catch (error) {
 
     console.log(error);
 
-    res.status(500).json({message:"Server error"});
+    res.status(500).json({ message: "Server error" });
 
   }
 

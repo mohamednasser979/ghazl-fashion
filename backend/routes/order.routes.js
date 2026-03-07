@@ -11,16 +11,23 @@ const {
   createOrder,
 } = require("../controllers/order.controller");
 
-// Admin - Get All Orders
+
+// ==========================
+// USER CREATE ORDER
+// ==========================
+
+router.post("/", auth, createOrder);
+
+
+// ==========================
+// ADMIN ROUTES
+// ==========================
+
 router.get("/", auth, admin, getAllOrders);
 
-// Admin - Update Order Status
 router.put("/:id", auth, admin, updateOrderStatus);
 
-// Admin - Delete Order
 router.delete("/:id", auth, admin, deleteOrder);
 
-// User - Create Order
-router.post("/", auth, createOrder);
 
 module.exports = router;
