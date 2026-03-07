@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-import AdminRoute from "./components/AdminRoute";
 import Footer from "./components/Footer";
+import AdminRoute from "./components/AdminRoute";
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -26,6 +26,7 @@ function Layout() {
       {!isAdminPage && <Navbar />}
 
       <Routes>
+
         {/* ===== Public Routes ===== */}
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
@@ -48,7 +49,9 @@ function Layout() {
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
         </Route>
+
       </Routes>
+
       {!isAdminPage && <Footer />}
     </>
   );
