@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 
 export default function EditProductModal({
   product,
@@ -12,8 +12,8 @@ export default function EditProductModal({
 
   const handleUpdate = async () => {
     try {
-      await axios.put(
-        `http://localhost:5000/api/products/${product._id}`,
+      await api.put(
+        `/products/${product._id}`,
         { name, price, category }
       );
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 
 export default function AdminOrders() {
 
@@ -17,8 +17,8 @@ export default function AdminOrders() {
 
     const fetchOrders = async()=>{
 
-      const res = await axios.get(
-        "http://localhost:5000/api/orders",
+      const res = await api.get(
+        "/orders",
         {
           headers:{
             Authorization:`Bearer ${token}`
@@ -37,8 +37,8 @@ export default function AdminOrders() {
 
   const updateStatus = async(id,orderStatus)=>{
 
-    await axios.put(
-      `http://localhost:5000/api/orders/${id}`,
+    await api.put(
+      `/orders/${id}`,
       {orderStatus},
       {
         headers:{
@@ -62,8 +62,8 @@ export default function AdminOrders() {
 
     if(!window.confirm("Delete this order?")) return;
 
-    await axios.delete(
-      `http://localhost:5000/api/orders/${id}`,
+    await api.delete(
+      `/orders/${id}`,
       {
         headers:{
           Authorization:`Bearer ${token}`

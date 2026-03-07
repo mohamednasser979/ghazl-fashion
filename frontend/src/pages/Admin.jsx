@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import EditProductModal from "../components/EditProductModal";
 
 export default function Admin() {
@@ -9,7 +9,7 @@ export default function Admin() {
   const token = localStorage.getItem("token");
 
   const fetchProducts = async () => {
-    const res = await axios.get("http://localhost:5000/api/products");
+    const res = await api.get("/products");
     setProducts(res.data);
   };
 
@@ -19,8 +19,8 @@ export default function Admin() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/products/${id}`,
+      await api.delete(
+        `/products/${id}`,
         { headers: { Authorization: token } }
       );
 

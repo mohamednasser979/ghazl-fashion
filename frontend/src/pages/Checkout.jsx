@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
@@ -47,8 +47,8 @@ export default function Checkout() {
         color: item.selectedColor
       }));
 
-      await axios.post(
-        "http://localhost:5000/api/orders",
+      await api.post(
+        "/orders",
         {
           items: formattedItems,
           totalPrice,

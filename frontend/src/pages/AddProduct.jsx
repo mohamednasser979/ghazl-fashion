@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import AdminLayout from "../components/AdminLayout";
 
 export default function AddProduct() {
@@ -18,7 +18,7 @@ export default function AddProduct() {
     formData.append("category", category);
     formData.append("image", image);
 
-    await axios.post("http://localhost:5000/api/products", formData, {
+    await api.post("/products", formData, {
       headers: {
         Authorization: token,
         "Content-Type": "multipart/form-data",

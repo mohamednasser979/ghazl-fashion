@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 
 function AdminDashboard() {
 
@@ -19,8 +19,8 @@ function AdminDashboard() {
 
       try{
 
-        const res = await axios.get(
-          "http://localhost:5000/api/dashboard",
+        const res = await api.get(
+          "/dashboard",
           {
             headers:{
               Authorization:`Bearer ${token}`

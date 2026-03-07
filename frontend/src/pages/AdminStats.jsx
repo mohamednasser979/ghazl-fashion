@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import AdminLayout from "../components/AdminLayout";
 
 export default function AdminStats() {
@@ -13,7 +13,7 @@ export default function AdminStats() {
   }, []);
 
   const fetchStats = async () => {
-    const res = await axios.get("http://localhost:5000/api/admin/stats", {
+    const res = await api.get("/admin/stats", {
       headers: { Authorization: token },
     });
 
