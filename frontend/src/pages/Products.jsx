@@ -4,46 +4,54 @@ import ProductCard from "../components/ProductCard";
 
 export default function Products(){
 
-  const [products,setProducts] = useState([]);
+const [products,setProducts] = useState([]);
 
-  useEffect(()=>{
+const API = "https://ghazl-fashion-production.up.railway.app";
 
-    const fetchProducts = async()=>{
+useEffect(()=>{
 
-      const res = await axios.get(
-        "http://localhost:5000/api/products"
-      );
+const fetchProducts = async()=>{
 
-      setProducts(res.data);
+  try{
 
-    };
+    const res = await axios.get(
+      `${API}/api/products`
+    );
 
-    fetchProducts();
+    setProducts(res.data);
 
-  },[]);
+  }catch(err){
+    console.error("Error fetching products:",err);
+  }
 
-  return(
+};
 
-    <div className="container mt-5">
+fetchProducts();
 
-      <h2 className="mb-4">Our Collection</h2>
+},[]);
 
-      <div className="row">
+return(
 
-        {products.map(product=>(
+<div className="container mt-5">
 
-          <div className="col-md-3 mb-4" key={product._id}>
+  <h2 className="mb-4">Our Collection</h2>
 
-            <ProductCard product={product} />
+  <div className="row">
 
-          </div>
+    {products.map(product=>(
 
-        ))}
+      <div className="col-md-3 mb-4" key={product._id}>
+
+        <ProductCard product={product} />
 
       </div>
 
-    </div>
+    ))}
 
-  );
+  </div>
+
+</div>
+
+);
 
 }
