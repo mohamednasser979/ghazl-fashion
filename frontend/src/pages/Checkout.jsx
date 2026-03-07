@@ -58,7 +58,7 @@ const handleSubmit = async (e) => {
     await api.post("/orders", {
       items: formattedItems,
       totalPrice,
-      shippingAddress: shipping
+      shippingAddress: shipping,
     });
 
     clearCart();

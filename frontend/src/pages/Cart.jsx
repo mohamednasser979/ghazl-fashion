@@ -35,7 +35,7 @@ export default function Cart() {
 
           {/* IMAGE */}
           <img
-            src={`http://localhost:5000/uploads/${item.images?.[0] || item.image}`}
+            src={`https://ghazl-fashion-production.up.railway.app/uploads/${item.images?.[0] || item.image}`}
             alt={item.name}
             width="80"
             className="rounded me-3"
