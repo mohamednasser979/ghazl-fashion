@@ -1,13 +1,15 @@
 import { Navigate } from "react-router-dom";
 
-function AdminRoute({ children }) {
-  const role = localStorage.getItem("role");
+export default function AdminRoute({ children }) {
 
-  if (role !== "admin") {
-    return <Navigate to="/" />;
-  }
+const role = localStorage.getItem("role");
 
-  return children;
+if (role !== "admin") {
+
+return <Navigate to="/" />;
+
 }
 
-export default AdminRoute;
+return children;
+
+}

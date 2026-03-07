@@ -29,51 +29,51 @@ setShipping({
 
 const handleSubmit = async (e) => {
 
-e.preventDefault();
+  e.preventDefault();
 
-const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-if (!token) {
-  alert("Please login first");
-  navigate("/login");
-  return;
-}
+  if (!token) {
+    alert("Please login first");
+    navigate("/login");
+    return;
+  }
 
-if (cart.length === 0) {
-  alert("Cart is empty");
-  return;
-}
+  if (cart.length === 0) {
+    alert("Cart is empty");
+    return;
+  }
 
-try {
+  try {
 
-  const formattedItems = cart.map(item => ({
-    name: item.name,
-    price: item.price,
-    qty: item.qty,
-    image: item.image,
-    size: item.selectedSize,
-    color: item.selectedColor
-  }));
+    const formattedItems = cart.map(item => ({
+      name: item.name,
+      price: item.price,
+      qty: item.qty,
+      image: item.image,
+      size: item.selectedSize,
+      color: item.selectedColor
+    }));
 
-  await api.post("/orders", {
-    items: formattedItems,
-    totalPrice,
-    shippingAddress: shipping
-  });
+    await api.post("/orders", {
+      items: formattedItems,
+      totalPrice,
+      shippingAddress: shipping
+    });
 
-  clearCart();
+    clearCart();
 
-  alert("Order placed successfully!");
+    alert("Order placed successfully!");
 
-  navigate("/");
+    navigate("/");
 
-} catch (error) {
+  } catch (error) {
 
-  console.log(error.response?.data || error.message);
+    console.log(error.response?.data || error.message);
 
-  alert("Error placing order");
+    alert("Error placing order");
 
-}
+  }
 
 };
 

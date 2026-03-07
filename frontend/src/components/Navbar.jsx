@@ -1,156 +1,85 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
-import { useState } from "react";
 
 export default function Navbar() {
 
-  const { user, logout } = useAuth();
-  const { dark, setDark } = useTheme();
-  const { cart } = useCart();
+const navigate = useNavigate();
+const { cart } = useCart();
 
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+const token = localStorage.getItem("token");
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+const handleLogout = () => {
 
-  const cartCount = cart.reduce(
-    (sum, item) => sum + item.qty,
-    0
-  );
+localStorage.removeItem("token");
+localStorage.removeItem("role");
 
-  return (
-    <header className="navbar-wrapper">
+navigate("/login");
 
-      <div className="navbar-container">
+};
 
-        {/* Logo */}
-        <Link to="/" className="brand-wrapper">
-          <div className="brand-text">
-            <span className="brand-name">GHAZL</span>
-            <span className="brand-butterfly"></span>
-          </div>
-          <span className="brand-fashion">FASHION</span>
-        </Link>
+return (
 
-        {/* Desktop Links */}
-        <nav className="nav-links">
+<nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
 
-          <Link to="/">Home</Link>
+  <div className="container">
 
-          <Link to="/products">Shop</Link>
+    <Link className="navbar-brand fw-bold" to="/">
+      GHAZL
+    </Link>
 
-          {/* Cart with counter */}
-          <Link to="/cart" className="cart-link">
+    <div className="collapse navbar-collapse">
 
-            Cart
+      <ul className="navbar-nav ms-auto">
 
-            {cartCount > 0 && (
-              <span className="cart-badge">
-                {cartCount}
-              </span>
-            )}
+        <li className="nav-item">
+          <Link className="nav-link" to="/">Home</Link>
+        </li>
 
+        <li className="nav-item">
+          <Link className="nav-link" to="/products">Shop</Link>
+        </li>
+
+        <li className="nav-item">
+          <Link className="nav-link" to="/cart">
+            Cart ({cart.length})
           </Link>
+        </li>
 
-          {!user ? (
-
-            <>
-              <Link to="/login">Login</Link>
-
-              <Link to="/register" className="primary-btn">
-                Register
-              </Link>
-            </>
-
-          ) : (
-
-            <>
-              {user.role === "admin" && (
-                <Link to="/admin/dashboard">Admin</Link>
-              )}
-
-              <button
-                className="text-btn"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </>
-
-          )}
-
-          <button
-            className="mode-btn"
-            onClick={() => setDark(!dark)}
-          >
-            {dark ? "☀" : "🌙"}
-          </button>
-
-        </nav>
-
-        {/* Mobile Toggle */}
-        <div
-          className="mobile-toggle"
-          onClick={() => setOpen(!open)}
-        >
-          ☰
-        </div>
-
-      </div>
-
-      {/* Mobile Menu */}
-      {open && (
-
-        <div className="mobile-menu">
-
-          <Link to="/" onClick={() => setOpen(false)}>
-            Home
-          </Link>
-
-          <Link to="/products" onClick={() => setOpen(false)}>
-            Shop
-          </Link>
-
-          <Link to="/cart" onClick={() => setOpen(false)}>
-            Cart ({cartCount})
-          </Link>
-
-          {!user ? (
-            <>
-              <Link to="/login" onClick={() => setOpen(false)}>
+        {!token && (
+          <>
+            <li className="nav-item">
+              <Link className="nav-link" to="/login">
                 Login
               </Link>
+            </li>
 
-              <Link to="/register" onClick={() => setOpen(false)}>
+            <li className="nav-item">
+              <Link className="nav-link" to="/register">
                 Register
               </Link>
-            </>
-          ) : (
-            <>
-              {user.role === "admin" && (
-                <Link
-                  to="/admin/dashboard"
-                  onClick={() => setOpen(false)}
-                >
-                  Admin
-                </Link>
-              )}
+            </li>
+          </>
+        )}
 
-              <button onClick={handleLogout}>
-                Logout
-              </button>
-            </>
-          )}
+        {token && (
+          <li className="nav-item">
+            <button
+              className="btn btn-dark ms-2"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </li>
+        )}
 
-        </div>
+      </ul>
 
-      )}
+    </div>
 
-    </header>
-  );
+  </div>
+
+</nav>
+
+);
+
 }
