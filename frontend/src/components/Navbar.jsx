@@ -1,10 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useState } from "react";
 
 export default function Navbar() {
 
 const navigate = useNavigate();
 const { cart } = useCart();
+
+const [open, setOpen] = useState(false);
 
 const token = localStorage.getItem("token");
 
@@ -27,30 +30,29 @@ return (
       GHAZL
     </Link>
 
-    {/* Mobile button */}
+    {/* Mobile Button */}
     <button
       className="navbar-toggler"
       type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
+      onClick={() => setOpen(!open)}
     >
       <span className="navbar-toggler-icon"></span>
     </button>
 
-    <div className="collapse navbar-collapse" id="navbarNav">
+    <div className={`collapse navbar-collapse ${open ? "show" : ""}`}>
 
       <ul className="navbar-nav ms-auto">
 
         <li className="nav-item">
-          <Link className="nav-link" to="/">Home</Link>
+          <Link className="nav-link" to="/" onClick={()=>setOpen(false)}>Home</Link>
         </li>
 
         <li className="nav-item">
-          <Link className="nav-link" to="/products">Shop</Link>
+          <Link className="nav-link" to="/products" onClick={()=>setOpen(false)}>Shop</Link>
         </li>
 
         <li className="nav-item">
-          <Link className="nav-link" to="/cart">
+          <Link className="nav-link" to="/cart" onClick={()=>setOpen(false)}>
             Cart ({cart.length})
           </Link>
         </li>
@@ -58,13 +60,13 @@ return (
         {!token && (
           <>
             <li className="nav-item">
-              <Link className="nav-link" to="/login">
+              <Link className="nav-link" to="/login" onClick={()=>setOpen(false)}>
                 Login
               </Link>
             </li>
 
             <li className="nav-item">
-              <Link className="nav-link" to="/register">
+              <Link className="nav-link" to="/register" onClick={()=>setOpen(false)}>
                 Register
               </Link>
             </li>
