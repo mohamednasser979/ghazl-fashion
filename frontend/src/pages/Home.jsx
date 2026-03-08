@@ -30,7 +30,7 @@ export default function Home() {
         <SwiperSlide>
 
           <img
-            src="/images/swiper 1.jpeg"
+            src="/images/swiper1.jpeg"
             className="slider-img"
             alt=""
           />
@@ -41,7 +41,7 @@ export default function Home() {
         <SwiperSlide>
 
           <img
-            src="/images/swiper 2.jpeg"
+            src="/images/swiper2.jpeg"
             className="slider-img"
             alt=""
           />
@@ -52,7 +52,7 @@ export default function Home() {
         <SwiperSlide>
 
           <img
-            src="/images/swiper 3.jpeg"
+            src="/images/swiper3.jpeg"
             className="slider-img"
             alt=""
           />
