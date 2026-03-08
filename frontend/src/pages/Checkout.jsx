@@ -31,14 +31,6 @@ const handleSubmit = async (e) => {
 
   e.preventDefault();
 
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    alert("Please login first");
-    navigate("/login");
-    return;
-  }
-
   if (cart.length === 0) {
     alert("Cart is empty");
     return;

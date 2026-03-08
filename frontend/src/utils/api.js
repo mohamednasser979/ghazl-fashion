@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_URL =
-process.env.REACT_APP_API_URL ||
+
 "https://ghazl-fashion-production.up.railway.app/api";
 
 const api = axios.create({
