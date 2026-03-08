@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 
@@ -11,20 +12,18 @@ export default function AdminOrders() {
     status:""
   });
 
+  const [previewImages,setPreviewImages] = useState([]);
+  const [currentImage,setCurrentImage] = useState(0);
+
+  const API = "https://ghazl-fashion-production.up.railway.app";
+
   const token = localStorage.getItem("token");
 
   useEffect(()=>{
 
     const fetchOrders = async()=>{
 
-      const res = await api.get(
-        "/orders",
-        {
-          headers:{
-            Authorization:`Bearer ${token}`
-          }
-        }
-      );
+      const res = await api.get("/orders");
 
       setOrders(res.data);
 
@@ -32,20 +31,12 @@ export default function AdminOrders() {
 
     fetchOrders();
 
-  },[token]);
+  },[]);
 
 
   const updateStatus = async(id,orderStatus)=>{
 
-    await api.put(
-      `/orders/${id}`,
-      {orderStatus},
-      {
-        headers:{
-          Authorization:`Bearer ${token}`
-        }
-      }
-    );
+    await api.put(`/orders/${id}`,{orderStatus});
 
     setOrders(prev =>
       prev.map(order =>
@@ -62,14 +53,7 @@ export default function AdminOrders() {
 
     if(!window.confirm("Delete this order?")) return;
 
-    await api.delete(
-      `/orders/${id}`,
-      {
-        headers:{
-          Authorization:`Bearer ${token}`
-        }
-      }
-    );
+    await api.delete(`/orders/${id}`);
 
     setOrders(prev =>
       prev.filter(order => order._id !== id)
@@ -115,6 +99,19 @@ export default function AdminOrders() {
   });
 
 
+  const nextImage = ()=>{
+    setCurrentImage((prev)=>
+      prev === previewImages.length-1 ? 0 : prev+1
+    );
+  };
+
+  const prevImage = ()=>{
+    setCurrentImage((prev)=>
+      prev === 0 ? previewImages.length-1 : prev-1
+    );
+  };
+
+
   return (
 
     <div className="container-fluid mt-4">
@@ -129,23 +126,15 @@ export default function AdminOrders() {
 
             <tr>
 
-              <th style={{minWidth:"120px"}}>Date</th>
-
-              <th style={{minWidth:"300px"}}>Products</th>
-
-              <th style={{minWidth:"120px"}}>Total</th>
-
-              <th style={{minWidth:"160px"}}>City</th>
-
-              <th style={{minWidth:"160px"}}>Phone</th>
-
-              <th style={{minWidth:"260px"}}>Address</th>
-
-              <th style={{minWidth:"150px"}}>Status</th>
-
-              <th style={{minWidth:"160px"}}>Change</th>
-
-              <th style={{minWidth:"120px"}}>Action</th>
+              <th>Date</th>
+              <th>Products</th>
+              <th>Total</th>
+              <th>City</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Change</th>
+              <th>Action</th>
 
             </tr>
 
@@ -214,17 +203,25 @@ export default function AdminOrders() {
                 <td>
 
                   {order.items.map((item,index)=>(
+
                     <div key={index} className="mb-2">
 
                       <div className="d-flex align-items-center">
 
                         {item.image && (
+
                           <img
-                            src={item.image}
+                            src={`${API}/uploads/${item.image}`}
                             alt=""
-                            width="40"
+                            width="45"
                             className="me-2 rounded"
+                            style={{cursor:"pointer"}}
+                            onClick={()=>{
+                              setPreviewImages([`${API}/uploads/${item.image}`]);
+                              setCurrentImage(0);
+                            }}
                           />
+
                         )}
 
                         <div>
@@ -244,6 +241,7 @@ export default function AdminOrders() {
                       </div>
 
                     </div>
+
                   ))}
 
                 </td>
@@ -306,6 +304,62 @@ export default function AdminOrders() {
         </table>
 
       </div>
+
+
+      {/* IMAGE MODAL */}
+
+      {previewImages.length > 0 && (
+
+        <div
+          style={{
+            position:"fixed",
+            top:0,
+            left:0,
+            width:"100%",
+            height:"100%",
+            background:"rgba(0,0,0,0.8)",
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"center",
+            zIndex:9999
+          }}
+          onClick={()=>setPreviewImages([])}
+        >
+
+          <div onClick={e=>e.stopPropagation()}>
+
+            <img
+              src={previewImages[currentImage]}
+              style={{
+                maxWidth:"80vw",
+                maxHeight:"80vh",
+                borderRadius:"10px"
+              }}
+            />
+
+            <div className="text-center mt-3">
+
+              <button
+                className="btn btn-light me-2"
+                onClick={prevImage}
+              >
+                ◀
+              </button>
+
+              <button
+                className="btn btn-light"
+                onClick={nextImage}
+              >
+                ▶
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </div>
 
