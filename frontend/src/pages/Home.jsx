@@ -16,34 +16,8 @@ export default function Home() {
   return (
 
     <>
-      {/* HERO */}
 
-      <section className="hero">
-
-        <div className="hero-overlay">
-
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="hero-content"
-          >
-
-            <h1>{t("heroTitle")}</h1>
-
-            <p>{t("heroSubtitle")}</p>
-
-            <Link to="/products" className="hero-btn">
-              {t("shopNow")}
-            </Link>
-
-          </motion.div>
-
-        </div>
-
-      </section>
-
-      {/* SLIDER */}
+    {/* SLIDER */}
 
       <Swiper
         modules={[Pagination, Autoplay]}
@@ -86,6 +60,36 @@ export default function Home() {
         </SwiperSlide>
 
       </Swiper>
+
+
+      {/* HERO */}
+
+      <section className="hero">
+
+        <div className="hero-overlay">
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="hero-content"
+          >
+
+            <h1>{t("heroTitle")}</h1>
+
+            <p>{t("heroSubtitle")}</p>
+
+            <Link to="/products" className="hero-btn">
+              {t("shopNow")}
+            </Link>
+
+          </motion.div>
+
+        </div>
+
+      </section>
+
+      
 
 
       {/* FEATURED */}
