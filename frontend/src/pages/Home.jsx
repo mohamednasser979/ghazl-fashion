@@ -30,7 +30,7 @@ export default function Home() {
         <SwiperSlide>
 
           <img
-            src="https://images.unsplash.com/photo-1520975916090-3105956dac38"
+            src="/images/swiper 1.jpeg"
             className="slider-img"
             alt=""
           />
@@ -41,7 +41,7 @@ export default function Home() {
         <SwiperSlide>
 
           <img
-            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d"
+            src="/images/swiper 2.jpeg"
             className="slider-img"
             alt=""
           />
@@ -52,7 +52,7 @@ export default function Home() {
         <SwiperSlide>
 
           <img
-            src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c"
+            src="/images/swiper 3.jpeg"
             className="slider-img"
             alt=""
           />
@@ -64,7 +64,13 @@ export default function Home() {
 
       {/* HERO */}
 
-      <section className="hero">
+      <section className="hero"
+      style={{
+        backgroundImage:"url('/images/home.jpeg')",
+        backgroundSize:"cover",
+        backgroundPosition:"center",
+        backgroundRepeat:"no-repeat"
+      }}>
 
         <div className="hero-overlay">
 
