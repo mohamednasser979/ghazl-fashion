@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
-import main from "../assets/GENESIS/THE FIRST DROP.jpeg";
+
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -28,7 +28,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="hero-content"
           >
-            <img src={main} alt="Ghazl Fashion" className="main-image" />
+
             <h1>{t("heroTitle")}</h1>
 
             <p>{t("heroSubtitle")}</p>
