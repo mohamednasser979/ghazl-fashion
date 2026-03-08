@@ -17,6 +17,7 @@ export default function AdminOrders() {
 
   const API = "https://ghazl-fashion-production.up.railway.app";
 
+  // eslint-disable-next-line no-unused-vars
   const token = localStorage.getItem("token");
 
   useEffect(()=>{
