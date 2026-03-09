@@ -52,7 +52,7 @@ export default function Home() {
         <SwiperSlide>
 
           <img
-            src="/images/swiper3.jpeg"
+            src="../../public/images/swiper3.jpeg"
             className="slider-img"
             alt=""
           />
