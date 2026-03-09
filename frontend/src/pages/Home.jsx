@@ -2,10 +2,6 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
-
-
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -16,51 +12,6 @@ export default function Home() {
   return (
 
     <>
-
-    {/* SLIDER */}
-
-      <Swiper
-        modules={[Pagination, Autoplay]}
-        pagination={{ clickable: true }}
-        autoplay={{ delay: 3500 }}
-        loop={true}
-        className="home-slider"
-      >
-
-        <SwiperSlide>
-
-          <img
-            src="/images/swiper1.jpeg"
-            className="slider-img"
-            alt=""
-          />
-
-        </SwiperSlide>
-
-
-        <SwiperSlide>
-
-          <img
-            src="/images/swiper2.jpeg"
-            className="slider-img"
-            alt=""
-          />
-
-        </SwiperSlide>
-
-
-        <SwiperSlide>
-
-          <img
-            src="../../public/images/swiper3.jpeg"
-            className="slider-img"
-            alt=""
-          />
-
-        </SwiperSlide>
-
-      </Swiper>
-
 
       {/* HERO */}
 
