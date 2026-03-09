@@ -66,7 +66,7 @@ export default function Home() {
 
       <section className="hero"
       style={{
-        backgroundImage:"url('/images/home.jpeg')",
+        backgroundImage:"url('https://github.com/mohamednasser979/ghazl-fashion/blob/main/frontend/public/images/swiper1.jpeg')",
         backgroundSize:"cover",
         backgroundPosition:"center",
         backgroundRepeat:"no-repeat"
