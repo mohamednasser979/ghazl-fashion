@@ -24,11 +24,23 @@ const orderSchema = new mongoose.Schema({
     required: true
   },
 
+  itemsSubtotal: {
+    type: Number,
+    default: 0
+  },
+
+  shippingFee: {
+    type: Number,
+    default: 0
+  },
+
   shippingAddress: {
     fullName: String,
     phone: String,
     address: String,
-    city: String
+    city: String,
+    area: String,
+    shippingZone: String
   },
 
   orderStatus: {

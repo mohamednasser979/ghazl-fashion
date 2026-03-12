@@ -31,7 +31,7 @@ exports.updateOrderStatus = async (req, res) => {
     const order = await Order.findByIdAndUpdate(
       req.params.id,
       { orderStatus: req.body.orderStatus },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     res.json(order);
@@ -71,7 +71,7 @@ exports.createOrder = async (req, res) => {
 
   try {
 
-    const { items, totalPrice, shippingAddress } = req.body;
+    const { items, totalPrice, shippingAddress, shippingFee, itemsSubtotal } = req.body;
 
     if (!items || items.length === 0) {
 
@@ -84,7 +84,9 @@ exports.createOrder = async (req, res) => {
       user: req.user.id,   // 🔥 هذا كان ناقص
 
       items,
-      totalPrice,
+      totalPrice: Number(totalPrice) || 0,
+      itemsSubtotal: Number(itemsSubtotal) || Number(totalPrice) || 0,
+      shippingFee: Number(shippingFee) || 0,
       shippingAddress,
 
       orderStatus: "Pending"

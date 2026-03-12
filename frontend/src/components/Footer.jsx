@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
+import Logo from "../assets/logo.png";
 
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-container">
         <div>
-          <h3>Ghazl</h3>
+          <img src={Logo} alt="Ghazl Fashion logo" className="logo mb-3" />
           <p>Elegance in every thread.</p>
         </div>
 
@@ -17,8 +18,13 @@ export default function Footer() {
 
         <div>
           <h4>Contact</h4>
-          <p>info@ghazl.com</p>
-          <p>+20 123 456 789</p>
+          <a
+            href="https://www.instagram.com/ghazlfashion_?igsh=MWk3NW1rbWd0NDk2bw=="
+            target="_blank"
+            rel="noreferrer"
+          >
+            @ghazlfashion_
+          </a>
         </div>
       </div>
 

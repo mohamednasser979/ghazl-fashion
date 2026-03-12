@@ -1,3 +1,5 @@
+import { formatEGP } from "../utils/pricing";
+
 export default function AdminStats({ orders, products }) {
 
   const totalSales = orders.reduce(
@@ -25,7 +27,7 @@ export default function AdminStats({ orders, products }) {
       <div className="col-md-4">
         <div className="card p-3 shadow-sm">
           <h6>Total Sales</h6>
-          <h3>${totalSales}</h3>
+          <h3>{formatEGP(totalSales)}</h3>
         </div>
       </div>
 

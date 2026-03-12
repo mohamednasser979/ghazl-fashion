@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import { useTranslation } from "react-i18next";
+import { formatEGP } from "../utils/pricing";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -36,7 +37,7 @@ export default function MyOrders() {
             </div>
 
             <div className="text-muted">
-              {t("total")}: ${order.totalPrice}
+              {t("total")}: {formatEGP(order.totalPrice)}
             </div>
 
             <div>

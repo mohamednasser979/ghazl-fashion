@@ -1,6 +1,6 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api";
 
 function Login() {
   const navigate = useNavigate();
@@ -18,10 +18,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const res = await axios.post(
-        "https://ghazl-fashion-production.up.railway.app/api/auth/login",
-        form
-      );
+      const res = await api.post("/auth/login", form);
 
       // 🔥 تخزين التوكن + الرول
       localStorage.setItem("token", res.data.token);

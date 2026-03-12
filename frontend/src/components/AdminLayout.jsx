@@ -1,40 +1,90 @@
-import { Link, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 function AdminLayout() {
-  return (
-    <div className="d-flex">
-      {/* Sidebar */}
-      <div
-        className="bg-dark text-white p-3"
-        style={{ width: "250px", minHeight: "100vh" }}
-      >
-        <h4 className="mb-4">👑 Admin</h4>
+  const navigate = useNavigate();
+  const location = useLocation();
 
-        <ul className="nav flex-column">
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/login");
+  };
+
+  return (
+    <div className="admin-layout">
+      <aside className={`admin-sidebar ${sidebarOpen ? "admin-sidebar-open" : ""}`}>
+        <div className="admin-sidebar-head">
+          <h4 className="mb-0">Admin Panel</h4>
+
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-light admin-close-sidebar"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Close
+          </button>
+        </div>
+
+        <ul className="nav flex-column mt-4">
           <li className="nav-item mb-2">
             <Link className="nav-link text-white" to="/admin/dashboard">
-              📊 Dashboard
+              Dashboard
             </Link>
           </li>
 
           <li className="nav-item mb-2">
             <Link className="nav-link text-white" to="/admin/products">
-              🛍 Products
+              Products
             </Link>
           </li>
 
           <li className="nav-item mb-2">
             <Link className="nav-link text-white" to="/admin/orders">
-              📦 Orders
+              Orders
             </Link>
           </li>
         </ul>
-      </div>
+      </aside>
 
-      {/* Content */}
-      <div className="flex-grow-1 p-4 bg-light">
-        <Outlet />
-      </div>
+      <button
+        type="button"
+        className={`admin-sidebar-backdrop ${sidebarOpen ? "show" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-label="Close sidebar"
+      />
+
+      <main className="admin-main">
+        <div className="admin-mobile-topbar">
+          <button
+            type="button"
+            className="btn btn-dark btn-sm"
+            onClick={() => setSidebarOpen(true)}
+          >
+            Menu
+          </button>
+
+          <span className="admin-mobile-title">Admin Panel</span>
+        </div>
+
+        <div className="admin-main-content">
+          <Outlet />
+        </div>
+      </main>
+
+      <button
+        type="button"
+        className="btn btn-danger admin-logout-fixed"
+        onClick={handleAdminLogout}
+      >
+        Logout Admin
+      </button>
     </div>
   );
 }

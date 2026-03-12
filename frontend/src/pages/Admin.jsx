@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import EditProductModal from "../components/EditProductModal";
+import { formatEGP } from "../utils/pricing";
 
 export default function Admin() {
   const [products, setProducts] = useState([]);
@@ -43,7 +44,7 @@ export default function Admin() {
           <img src={p.image} alt={p.name} width="100" />
 
           <h5>{p.name}</h5>
-          <p>${p.price}</p>
+          <p>{formatEGP(p.price)}</p>
 
           <button
             className="btn btn-sm btn-dark me-2"

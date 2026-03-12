@@ -1,27 +1,51 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade, Pagination } from "swiper/modules";
 import "swiper/css";
+import "swiper/css/effect-fade";
 import "swiper/css/pagination";
+import { homeShowcases } from "../data/homeShowcases";
+
+const heroSlides = [
+  { image: "/images/THE%20FIRST%20DROP.jpeg", alt: "The First Drop" },
+  { image: "/images/DUAL%20MODE%20%284%29.jpeg", alt: "Dual Mode" },
+  { image: "/images/OLIVE%20%2810%29.jpg", alt: "Olive" },
+  {
+    image: "/images/WhatsApp%20Image%202026-03-12%20at%203.04.51%20AM%20%281%29.jpeg",
+    alt: "Ghazl Fashion showcase",
+  },
+];
 
 export default function Home() {
 
   const { t } = useTranslation();
 
   return (
-
     <>
-
       {/* HERO */}
 
-      <section className="hero"
-      style={{
-        backgroundImage:"url('https://github.com/mohamednasser979/ghazl-fashion/blob/main/frontend/public/images/swiper1.jpeg')",
-        backgroundSize:"cover",
-        backgroundPosition:"center",
-        backgroundRepeat:"no-repeat"
-      }}>
+      <section className="hero">
+        <Swiper
+          className="hero-swiper"
+          modules={[Autoplay, EffectFade, Pagination]}
+          effect="fade"
+          loop
+          speed={1200}
+          autoplay={{
+            delay: 3500,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          }}
+          pagination={{ clickable: true }}
+        >
+          {heroSlides.map((slide) => (
+            <SwiperSlide key={slide.image}>
+              <img src={slide.image} alt={slide.alt} className="hero-image d-block" />
+            </SwiperSlide>
+          ))}
+        </Swiper>
 
         <div className="hero-overlay">
 
@@ -81,6 +105,63 @@ export default function Home() {
 
         </div>
 
+      </section>
+
+      {/* BEST PRODUCTS */}
+
+      <section className="best-picks">
+        <div className="best-picks-container">
+          <div className="best-picks-head">
+            <h2>Best Products</h2>
+            <p>Replace these with your best product images anytime.</p>
+          </div>
+
+          <div className="best-picks-grid">
+            {homeShowcases.map((card) => (
+              <article className="best-pick-card" key={card.slug}>
+                <div className="best-pick-media">
+                  <Link to={`/home-showcase/${card.slug}`} className="best-pick-card-link">
+                    <Swiper
+                      className="best-pick-swiper"
+                      modules={[Autoplay, Pagination]}
+                      loop
+                      speed={700}
+                      autoplay={{
+                        delay: 2600,
+                        disableOnInteraction: false,
+                        pauseOnMouseEnter: true,
+                      }}
+                      pagination={{ clickable: true }}
+                    >
+                      {card.images.map((image, index) => (
+                        <SwiperSlide key={`${card.slug}-${index}`}>
+                          <img
+                            src={image}
+                            alt={`${card.title} slide ${index + 1}`}
+                            className="best-pick-image"
+                          />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                  </Link>
+                </div>
+
+                <div className="best-pick-content">
+                  <h3>{card.title}</h3>
+                  <p>{card.subtitle}</p>
+                  <div className="best-pick-dots" aria-hidden="true">
+                    {card.images.map((_, index) => (
+                      <span key={`${card.slug}-dot-${index}`} className="best-pick-dot" />
+                    ))}
+                  </div>
+                  <Link to={`/home-showcase/${card.slug}`} className="best-pick-link">
+                    Open Gallery
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
     </>

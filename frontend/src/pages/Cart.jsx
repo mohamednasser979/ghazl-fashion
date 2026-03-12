@@ -1,10 +1,14 @@
 import { useCart } from "../context/CartContext";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { formatEGP } from "../utils/pricing";
+import { applyImageFallback, buildUploadFallbackUrl, buildUploadUrl } from "../utils/images";
 
 export default function Cart() {
 
   const { cart, removeFromCart, addToCart, decreaseQty } = useCart();
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const increaseQty = (item) => {
     addToCart({ ...item, qty: 1 });
@@ -13,6 +17,10 @@ export default function Cart() {
   const total = cart.reduce(
     (sum, item) => sum + item.price * item.qty,
     0
+  );
+
+  const hasMissingSelections = cart.some(
+    (item) => !item.selectedSize || !item.selectedColor
   );
 
   if (cart.length === 0)
@@ -35,10 +43,16 @@ export default function Cart() {
 
           {/* IMAGE */}
           <img
-            src={`https://ghazl-fashion-production.up.railway.app/uploads/${item.images?.[0] || item.image}`}
+            src={buildUploadUrl(item.images?.[0] || item.image)}
             alt={item.name}
-            width="80"
+            width="100"
             className="rounded me-3"
+            onError={(event) =>
+              applyImageFallback(
+                event,
+                buildUploadFallbackUrl(item.images?.[0] || item.image)
+              )
+            }
           />
 
           {/* INFO */}
@@ -47,7 +61,7 @@ export default function Cart() {
             <h6 className="mb-1">{item.name}</h6>
 
             <small className="text-muted">
-              ${item.price}
+              {formatEGP(item.price)}
             </small>
 
             <small className="text-muted d-block">
@@ -99,14 +113,22 @@ export default function Cart() {
 
       <div className="d-flex justify-content-between">
         <h5>Total:</h5>
-        <h5>${total}</h5>
+        <h5>{formatEGP(total)}</h5>
       </div>
 
-      <a href="/checkout">
-        <button className="btn btn-dark w-100 mt-3">
+      {hasMissingSelections && (
+        <div className="alert alert-warning mt-3 mb-0" role="alert">
+          Please choose size and color for every item before checkout.
+        </div>
+      )}
+
+      <button
+        className="btn btn-dark w-100 mt-3"
+        disabled={hasMissingSelections}
+        onClick={() => navigate("/checkout")}
+      >
           {t("checkout")}
-        </button>
-      </a>
+      </button>
 
     </div>
   );

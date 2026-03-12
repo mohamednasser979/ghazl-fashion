@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../utils/api";
+import { formatEGP } from "../utils/pricing";
 
 function AdminDashboard() {
 
@@ -42,7 +43,7 @@ function AdminDashboard() {
 
   return (
 
-    <div className="container mt-4">
+    <div className="container-fluid admin-dashboard mt-4">
 
       <h2 className="mb-4 fw-bold">Admin Dashboard</h2>
 
@@ -50,7 +51,7 @@ function AdminDashboard() {
 
         {/* PRODUCTS */}
 
-        <div className="col-md-3">
+        <div className="col-12 col-sm-6 col-xl-3">
 
           <div className="card shadow border-0 rounded-4 text-center p-4">
 
@@ -67,7 +68,7 @@ function AdminDashboard() {
 
         {/* ORDERS */}
 
-        <div className="col-md-3">
+        <div className="col-12 col-sm-6 col-xl-3">
 
           <div className="card shadow border-0 rounded-4 text-center p-4">
 
@@ -84,7 +85,7 @@ function AdminDashboard() {
 
         {/* PROCESSING */}
 
-        <div className="col-md-3">
+        <div className="col-12 col-sm-6 col-xl-3">
 
           <div className="card shadow border-0 rounded-4 text-center p-4">
 
@@ -101,7 +102,7 @@ function AdminDashboard() {
 
         {/* DELIVERED */}
 
-        <div className="col-md-3">
+        <div className="col-12 col-sm-6 col-xl-3">
 
           <div className="card shadow border-0 rounded-4 text-center p-4">
 
@@ -118,14 +119,14 @@ function AdminDashboard() {
 
         {/* REVENUE */}
 
-        <div className="col-md-12">
+        <div className="col-12">
 
           <div className="card shadow border-0 rounded-4 text-center p-4">
 
             <h6 className="text-muted">Total Revenue</h6>
 
             <h1 className="fw-bold text-danger">
-              ${stats.totalRevenue}
+              {formatEGP(stats.totalRevenue)}
             </h1>
 
           </div>

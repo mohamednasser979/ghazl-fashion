@@ -1,8 +1,5 @@
 import axios from "axios";
-
-const API_URL =
-
-"https://ghazl-fashion-production.up.railway.app/api";
+import { API_URL, FALLBACK_API_URL } from "./config";
 
 const api = axios.create({
 baseURL: API_URL
@@ -20,6 +17,31 @@ return config;
 
 },
 (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalConfig = error?.config || {};
+    const isNetworkError =
+      !error.response &&
+      (error.code === "ERR_NETWORK" || error.message === "Network Error");
+    const isLocalRequest =
+      typeof originalConfig.baseURL === "string" &&
+      originalConfig.baseURL.includes("localhost:5000");
+
+    if (
+      isNetworkError &&
+      isLocalRequest &&
+      !originalConfig.__retriedWithFallback
+    ) {
+      originalConfig.__retriedWithFallback = true;
+      originalConfig.baseURL = FALLBACK_API_URL;
+      return api.request(originalConfig);
+    }
+
+    return Promise.reject(error);
+  }
 );
 
 export default api;

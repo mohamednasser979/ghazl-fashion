@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Checkout from "./pages/Checkout";
 import ProductDetails from "./pages/ProductDetails";
+import HomeShowcase from "./pages/HomeShowcase";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
@@ -29,6 +30,7 @@ function Layout() {
 
         {/* ===== Public Routes ===== */}
         <Route path="/" element={<Home />} />
+        <Route path="/home-showcase/:slug" element={<HomeShowcase />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />

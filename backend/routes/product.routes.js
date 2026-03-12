@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
 const multer = require("multer");
-const path = require("path");
 
 /* =========================
    MULTER CONFIG
@@ -18,6 +17,53 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+const parsePriceFields = (body) => {
+  const parsedPrice = Number(body.price);
+
+  if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+    return { error: "Price must be a valid positive number." };
+  }
+
+  return {
+    price: parsedPrice
+  };
+};
+
+const parseSoldOutValue = (value) => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    return value === 1;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return ["true", "1", "yes", "on", "soldout", "sold out"].includes(normalized);
+  }
+
+  return false;
+};
+
+const getSoldOutFieldValue = (body = {}) => {
+  const hasOwn = Object.prototype.hasOwnProperty;
+
+  if (hasOwn.call(body, "soldOut")) {
+    return body.soldOut;
+  }
+
+  if (hasOwn.call(body, "soldout")) {
+    return body.soldout;
+  }
+
+  if (hasOwn.call(body, "isSoldOut")) {
+    return body.isSoldOut;
+  }
+
+  return undefined;
+};
 
 /* =========================
    GET ALL PRODUCTS
@@ -58,10 +104,16 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", upload.array("images", 5), async (req, res) => {
   try {
-    const { name, price, description } = req.body;
+    const { name, description } = req.body;
+    const priceFields = parsePriceFields(req.body);
+    const soldOut = parseSoldOutValue(getSoldOutFieldValue(req.body));
 
-    if (!name || !price) {
-      return res.status(400).json({ message: "Name and price required" });
+    if (!name || !String(name).trim()) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    if (priceFields.error) {
+      return res.status(400).json({ message: priceFields.error });
     }
 
     let sizes = [];
@@ -81,11 +133,12 @@ router.post("/", upload.array("images", 5), async (req, res) => {
         : [];
 
     const newProduct = new Product({
-      name,
-      price,
+      name: String(name).trim(),
+      price: priceFields.price,
       description,
       sizes,
       colors,
+      soldOut,
       images,
     });
 
@@ -105,7 +158,13 @@ router.post("/", upload.array("images", 5), async (req, res) => {
 
 router.put("/:id", upload.array("images", 5), async (req, res) => {
   try {
-    const { name, price, description } = req.body;
+    const { name, description } = req.body;
+    const priceFields = parsePriceFields(req.body);
+    const soldOutFieldValue = getSoldOutFieldValue(req.body);
+
+    if (priceFields.error) {
+      return res.status(400).json({ message: priceFields.error });
+    }
 
     let sizes = [];
     let colors = [];
@@ -119,12 +178,16 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
     }
 
     const updateData = {
-      name,
-      price,
+      name: name ? String(name).trim() : name,
+      price: priceFields.price,
       description,
       sizes,
       colors,
     };
+
+    if (soldOutFieldValue !== undefined) {
+      updateData.soldOut = parseSoldOutValue(soldOutFieldValue);
+    }
 
     if (req.files && req.files.length > 0) {
       updateData.images = req.files.map((file) => file.filename);
@@ -133,7 +196,7 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
       updateData,
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!updated) {

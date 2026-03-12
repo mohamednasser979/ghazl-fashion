@@ -1,326 +1,483 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import api from "../utils/api";
+import { formatEGP } from "../utils/pricing";
+import { applyImageFallback, buildUploadFallbackUrl, buildUploadUrl } from "../utils/images";
+import { parseSoldOutFlag, resolveSoldOutValue } from "../utils/soldOut";
 
 function AdminProducts() {
+  const [, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
-const API = "https://ghazl-fashion-production.up.railway.app";
+  const [editingId, setEditingId] = useState(null);
+  const [colorSearch, setColorSearch] = useState("");
+  const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
 
-const [,setProducts] = useState([]);
-const [filteredProducts,setFilteredProducts] = useState([]);
+  const colorDropdownRef = useRef(null);
 
-const [editingId,setEditingId] = useState(null);
+  const [form, setForm] = useState({
+    name: "",
+    price: "",
+    description: "",
+    images: [],
+    sizes: [],
+    colors: [],
+    soldOut: false
+  });
 
-const [form,setForm] = useState({
-name:"",
-price:"",
-description:"",
-images:[],
-sizes:[],
-colors:[]
-});
+  const AVAILABLE_SIZES = ["S", "M", "L", "XL", "XXL", "One Size"];
 
-const token = localStorage.getItem("token");
+  const AVAILABLE_COLORS = [
+    "Black", "White", "Beige", "Yellow", "Red", "Burgundy",
+    "Gray", "Dark Gray", "Mint Green", "Brown", "Navy",
+    "Orange", "Olive", "Baby Blue", "Powder Pink", "GARNET",
+    "Bronze", "Sage", "Petroleum", "Maroon", "Deep Navy",
+    "Mocha Brown", "Soft Mint", "Warm Cashmere", "CRIMSON",
+    "INDIGO", "NUDE", "OLIVE", "CARAMEL", "FLAMINGO", "INK",
+    "LEMON", "SKY", "SAND", "WINE", "FOREST", "LIME", "NOIR", "PURE",
+    "ROSE", "DENIM", "PEACH", "SUN"
+  ];
 
-const AVAILABLE_SIZES = ["S","M","L","XL","XXL","One Size"];
-
-const AVAILABLE_COLORS = [
-"Black","White","Beige","Yellow","Red","Burgundy",
-"Gray","Dark Gray","Mint Green","Brown","Navy",
-"Orange","Olive","Baby Blue","Powder Pink","GARNET","Bronze","Sage"
-];
-
-const fetchProducts = async ()=>{
-
-const res = await axios.get(
-  `${API}/api/products`
-);
-
-setProducts(res.data);
-setFilteredProducts(res.data);
-
-};
-
-useEffect(()=>{
-fetchProducts();
-},[]);
-
-const handleSubmit = async (e)=>{
-
-e.preventDefault();
-
-const formData = new FormData();
-
-formData.append("name",form.name);
-formData.append("price",form.price);
-formData.append("description",form.description);
-
-formData.append("sizes",JSON.stringify(form.sizes));
-formData.append("colors",JSON.stringify(form.colors));
-
-for(let i=0;i<form.images.length;i++){
-  formData.append("images",form.images[i]);
-}
-
-if(editingId){
-
-  await axios.put(
-    `${API}/api/products/${editingId}`,
-    formData,
-    {headers:{Authorization:`Bearer ${token}`}}
+  const filteredAvailableColors = AVAILABLE_COLORS.filter((color) =>
+    color.toLowerCase().includes(colorSearch.trim().toLowerCase())
   );
 
-}else{
+  const fetchProducts = async () => {
+    const res = await api.get("/products");
 
-  await axios.post(
-    `${API}/api/products`,
-    formData,
-    {headers:{Authorization:`Bearer ${token}`}}
-  );
+    setProducts(res.data);
+    setFilteredProducts(res.data);
 
-}
+    return res.data;
+  };
 
-setEditingId(null);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-setForm({
-  name:"",
-  price:"",
-  description:"",
-  images:[],
-  sizes:[],
-  colors:[]
-});
+  useEffect(() => {
+    if (!isColorDropdownOpen) {
+      return undefined;
+    }
 
-fetchProducts();
+    const handleOutsideClick = (event) => {
+      if (
+        colorDropdownRef.current &&
+        !colorDropdownRef.current.contains(event.target)
+      ) {
+        setIsColorDropdownOpen(false);
+      }
+    };
 
-};
+    document.addEventListener("mousedown", handleOutsideClick);
 
-const deleteProduct = async(id)=>{
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [isColorDropdownOpen]);
 
-if(!window.confirm("Delete product?")) return;
+  const resetForm = () => {
+    setForm({
+      name: "",
+      price: "",
+      description: "",
+      images: [],
+      sizes: [],
+      colors: [],
+      soldOut: false
+    });
+    setColorSearch("");
+    setIsColorDropdownOpen(false);
+  };
 
-await axios.delete(
-  `${API}/api/products/${id}`,
-  {headers:{Authorization:`Bearer ${token}`}}
-);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-fetchProducts();
+    const currentPrice = Number(form.price);
 
-};
+    if (!Number.isFinite(currentPrice) || currentPrice <= 0) {
+      alert("Price must be a valid positive number.");
+      return;
+    }
 
-const editProduct = (product)=>{
+    const formData = new FormData();
 
-setEditingId(product._id);
+    formData.append("name", form.name);
+    formData.append("price", String(currentPrice));
+    formData.append("description", form.description);
+    formData.append("soldOut", String(Boolean(form.soldOut)));
 
-setForm({
-  name:product.name,
-  price:product.price,
-  description:product.description,
-  images:[],
-  sizes:product.sizes || [],
-  colors:product.colors || []
-});
+    formData.append("sizes", JSON.stringify(form.sizes));
+    formData.append("colors", JSON.stringify(form.colors));
 
-window.scrollTo({top:0,behavior:"smooth"});
+    for (let i = 0; i < form.images.length; i += 1) {
+      formData.append("images", form.images[i]);
+    }
 
-};
+    try {
+      let response;
+      if (editingId) {
+        response = await api.put(`/products/${editingId}`, formData);
+      } else {
+        response = await api.post("/products", formData);
+      }
 
-return(
+      const expectedSoldOut = parseSoldOutFlag(form.soldOut);
+      const responseSoldOut = parseSoldOutFlag(response?.data?.soldOut);
 
-<div className="container mt-4">
+      setEditingId(null);
+      resetForm();
 
-  <h2 className="mb-4 fw-bold">
+      const refreshedProducts = await fetchProducts();
+      const savedId = response?.data?._id || editingId;
+      const refreshedSavedProduct = Array.isArray(refreshedProducts)
+        ? refreshedProducts.find((product) => String(product._id) === String(savedId))
+        : null;
+      const refreshedSoldOut = parseSoldOutFlag(refreshedSavedProduct?.soldOut);
 
-    {editingId ? "Edit Product" : "Add Product"}
+      const soldOutSavedCorrectly =
+        responseSoldOut === expectedSoldOut || refreshedSoldOut === expectedSoldOut;
 
-  </h2>
+      if (!soldOutSavedCorrectly) {
+        alert(
+          "Sold Out was not saved by the connected backend. Please deploy latest backend."
+        );
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Error saving product.");
+    }
+  };
 
+  const deleteProduct = async (id) => {
+    if (!window.confirm("Delete product?")) return;
 
-  <form onSubmit={handleSubmit} className="card p-4 mb-4">
+    await api.delete(`/products/${id}`);
 
-    <div className="row g-2">
+    fetchProducts();
+  };
 
-      <div className="col-md-4">
-        <input
-          type="text"
-          placeholder="Product Name"
-          className="form-control"
-          value={form.name}
-          onChange={e=>setForm({...form,name:e.target.value})}
-          required
-        />
-      </div>
+  const editProduct = (product) => {
+    setEditingId(product._id);
 
-      <div className="col-md-2">
-        <input
-          type="number"
-          placeholder="Price"
-          className="form-control"
-          value={form.price}
-          onChange={e=>setForm({...form,price:e.target.value})}
-          required
-        />
-      </div>
+    setForm({
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      images: [],
+      sizes: product.sizes || [],
+      colors: product.colors || [],
+      soldOut: resolveSoldOutValue(product)
+    });
 
-      <div className="col-md-4">
-        <input
-          type="text"
-          placeholder="Description"
-          className="form-control"
-          value={form.description}
-          onChange={e=>setForm({...form,description:e.target.value})}
-        />
-      </div>
+    setColorSearch("");
 
-      <div className="col-md-2">
-        <input
-          type="file"
-          multiple
-          className="form-control"
-          onChange={e=>setForm({...form,images:e.target.files})}
-        />
-      </div>
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-    </div>
+  const resolveImageSrc = (product) => {
+    const imageValue = product.images?.[0] || product.image || "";
 
+    if (!imageValue) return "";
 
-    <div className="mt-3">
+    const image = String(imageValue).trim();
+    if (!image) return "";
 
-      <strong>Sizes:</strong>
+    if (/^https?:\/\//i.test(image)) {
+      return image;
+    }
 
-      {AVAILABLE_SIZES.map(size=>(
-        <label key={size} className="me-2">
+    return buildUploadUrl(image);
+  };
 
-          <input
-            type="checkbox"
-            checked={form.sizes.includes(size)}
-            onChange={(e)=>{
-              if(e.target.checked)
-                setForm({...form,sizes:[...form.sizes,size]});
-              else
-                setForm({...form,sizes:form.sizes.filter(s=>s!==size)});
-            }}
-          />
+  const toggleOption = (field, value, isChecked) => {
+    setForm((prev) => {
+      const existingValues = Array.isArray(prev[field]) ? prev[field] : [];
 
-          {size}
+      if (isChecked) {
+        if (existingValues.includes(value)) {
+          return prev;
+        }
 
-        </label>
-      ))}
+        return { ...prev, [field]: [...existingValues, value] };
+      }
 
-    </div>
+      return {
+        ...prev,
+        [field]: existingValues.filter((item) => item !== value)
+      };
+    });
+  };
 
+  const colorsSummaryLabel =
+    form.colors.length > 0
+      ? `${form.colors.length} selected`
+      : "Select colors";
 
-    <div className="mt-3">
+  return (
+    <div className="container mt-4 admin-products-page">
+      <h2 className="mb-4 fw-bold">
+        {editingId ? "Edit Product" : "Add Product"}
+      </h2>
 
-      <strong>Colors:</strong>
+      <form onSubmit={handleSubmit} className="card border-0 shadow-sm p-4 mb-4 admin-product-form">
+        <div className="row g-3">
+          <div className="col-lg-4 col-md-6">
+            <label className="admin-field-label" htmlFor="product-name">
+              Product Name
+            </label>
+            <input
+              id="product-name"
+              type="text"
+              placeholder="Write product name"
+              className="form-control"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </div>
 
-      {AVAILABLE_COLORS.map(color=>(
-        <label key={color} className="me-2">
+          <div className="col-lg-2 col-md-6">
+            <label className="admin-field-label" htmlFor="product-price">
+              Price (EGP)
+            </label>
+            <input
+              id="product-price"
+              type="number"
+              placeholder="0"
+              className="form-control"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              required
+            />
+          </div>
 
-          <input
-            type="checkbox"
-            checked={form.colors.includes(color)}
-            onChange={(e)=>{
-              if(e.target.checked)
-                setForm({...form,colors:[...form.colors,color]});
-              else
-                setForm({...form,colors:form.colors.filter(c=>c!==color)});
-            }}
-          />
+          <div className="col-lg-4 col-md-8">
+            <label className="admin-field-label" htmlFor="product-description">
+              Description
+            </label>
+            <input
+              id="product-description"
+              type="text"
+              placeholder="Short product description"
+              className="form-control"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+          </div>
 
-          {color}
+          <div className="col-lg-2 col-md-4">
+            <label className="admin-field-label" htmlFor="product-images">
+              Images
+            </label>
+            <input
+              id="product-images"
+              type="file"
+              multiple
+              className="form-control"
+              onChange={(e) => setForm({ ...form, images: e.target.files })}
+            />
+          </div>
+        </div>
 
-        </label>
-      ))}
+        <div className="admin-form-options mt-3">
+          <div className="admin-size-panel">
+            <span className="admin-field-label d-block">Sizes</span>
 
-    </div>
+            <div className="admin-size-grid">
+              {AVAILABLE_SIZES.map((size) => (
+                <label
+                  key={size}
+                  className={`admin-size-chip ${form.sizes.includes(size) ? "active" : ""}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.sizes.includes(size)}
+                    onChange={(e) => toggleOption("sizes", size, e.target.checked)}
+                  />
+                  <span>{size}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
+          <div className="admin-color-panel" ref={colorDropdownRef}>
+            <span className="admin-field-label d-block">Colors</span>
 
-    <button className="btn btn-dark mt-3">
+            <button
+              type="button"
+              className="admin-color-dropdown-trigger"
+              onClick={() => setIsColorDropdownOpen((prev) => !prev)}
+            >
+              <span>{colorsSummaryLabel}</span>
+              <span className={`admin-dropdown-arrow ${isColorDropdownOpen ? "open" : ""}`}>
+                v
+              </span>
+            </button>
 
-      {editingId ? "Update Product" : "Add Product"}
+            {isColorDropdownOpen && (
+              <div className="admin-color-dropdown-menu">
+                <input
+                  type="search"
+                  className="form-control admin-colors-search"
+                  placeholder="Search color..."
+                  value={colorSearch}
+                  onChange={(e) => setColorSearch(e.target.value)}
+                />
 
-    </button>
+                <div className="admin-color-dropdown-list">
+                  {filteredAvailableColors.map((color) => (
+                    <label
+                      key={color}
+                      className={`admin-color-option ${form.colors.includes(color) ? "active" : ""}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={form.colors.includes(color)}
+                        onChange={(e) => toggleOption("colors", color, e.target.checked)}
+                      />
+                      <span>{color}</span>
+                    </label>
+                  ))}
 
-  </form>
-
-
-  <table className="table table-striped">
-
-    <thead className="table-dark">
-
-      <tr>
-        <th>Image</th>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Description</th>
-        <th>Sizes</th>
-        <th>Colors</th>
-        <th>Action</th>
-      </tr>
-
-    </thead>
-
-
-    <tbody>
-
-      {filteredProducts.map(product=>(
-
-        <tr key={product._id}>
-
-          <td>
-
-            {product.images?.length > 0 && (
-
-              <img
-                src={`${API}/uploads/${product.images[0]}`}
-                width="60"
-                alt=""
-              />
-
+                  {filteredAvailableColors.length === 0 && (
+                    <div className="admin-colors-empty">No matching colors.</div>
+                  )}
+                </div>
+              </div>
             )}
 
-          </td>
+            {form.colors.length > 0 && (
+              <div className="admin-selected-colors">
+                {form.colors.map((color) => (
+                  <span key={color} className="admin-selected-color-chip">
+                    {color}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
 
-          <td>{product.name}</td>
+          <div className="admin-stock-panel">
+            <span className="admin-field-label d-block">Stock Status</span>
 
-          <td>${product.price}</td>
+            <label className={`admin-soldout-toggle ${form.soldOut ? "active" : ""}`}>
+              <input
+                type="checkbox"
+                checked={form.soldOut}
+                onChange={(e) => setForm({ ...form, soldOut: e.target.checked })}
+              />
+              <span>{form.soldOut ? "Sold Out" : "Available"}</span>
+            </label>
 
-          <td>{product.description}</td>
+            <small className="text-muted d-block mt-2">
+              When set to Sold Out, the product card in Shop will show Sold Out and disable Add to Cart.
+            </small>
+          </div>
+        </div>
 
-          <td>{product.sizes?.join(", ")}</td>
+        <div className="d-flex gap-2 mt-4">
+          <button className="btn btn-dark">
+            {editingId ? "Update Product" : "Add Product"}
+          </button>
 
-          <td>{product.colors?.join(", ")}</td>
-
-          <td>
-
+          {editingId && (
             <button
-              className="btn btn-warning btn-sm me-2"
-              onClick={()=>editProduct(product)}
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => {
+                setEditingId(null);
+                resetForm();
+              }}
             >
-              Edit
+              Cancel Edit
             </button>
+          )}
+        </div>
+      </form>
 
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={()=>deleteProduct(product._id)}
-            >
-              Delete
-            </button>
+      <div className="table-responsive">
+        <table className="table table-striped">
+          <thead className="table-dark">
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Price (EGP)</th>
+              <th>Status</th>
+              <th>Description</th>
+              <th>Sizes</th>
+              <th>Colors</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-          </td>
+          <tbody>
+            {filteredProducts.map((product) => {
+              const imageSrc = resolveImageSrc(product);
 
-        </tr>
+              return (
+                <tr key={product._id}>
+                  <td>
+                    {imageSrc && (
+                      <img
+                        src={imageSrc}
+                        width="60"
+                        alt=""
+                        onError={(event) =>
+                          applyImageFallback(
+                            event,
+                            buildUploadFallbackUrl(
+                              product.images?.[0] || product.image || ""
+                            )
+                          )
+                        }
+                      />
+                    )}
+                  </td>
 
-      ))}
+                  <td>{product.name}</td>
 
-    </tbody>
+                  <td>{formatEGP(product.price)}</td>
 
-  </table>
+                  <td>
+                    <span
+                      className={`admin-status-badge ${
+                        resolveSoldOutValue(product) ? "soldout" : "available"
+                      }`}
+                    >
+                      {resolveSoldOutValue(product) ? "Sold Out" : "Available"}
+                    </span>
+                  </td>
 
-</div>
+                  <td>{product.description}</td>
 
-);
+                  <td>{product.sizes?.join(", ")}</td>
 
+                  <td>{product.colors?.join(", ")}</td>
+
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-warning btn-sm me-2"
+                      onClick={() => editProduct(product)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={() => deleteProduct(product._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
 export default AdminProducts;
