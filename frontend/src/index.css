@@ -1436,6 +1436,22 @@ img.card-img-top:hover {
   vertical-align: middle;
 }
 
+.order-item-no-image {
+  min-width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  border: 1px dashed rgba(198, 167, 94, 0.55);
+  background: rgba(255, 248, 233, 0.9);
+  color: #7d6438;
+  font-size: 10px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+}
+
 .logo {
   width: 60px;
   height: 60px;

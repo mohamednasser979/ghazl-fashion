@@ -1,5 +1,24 @@
 import { API_BASE_URL, PRODUCTION_API_BASE_URL } from "./config";
 
+const decodeImageNameSafely = (value) => {
+  let decoded = String(value || "");
+
+  // Decode once or twice to recover values like "%2520" -> "%20" -> " "
+  for (let index = 0; index < 2; index += 1) {
+    try {
+      const nextValue = decodeURIComponent(decoded);
+      if (nextValue === decoded) {
+        break;
+      }
+      decoded = nextValue;
+    } catch (error) {
+      break;
+    }
+  }
+
+  return decoded;
+};
+
 const normalizeImageName = (value) => {
   if (!value) return "";
 
@@ -18,13 +37,16 @@ const normalizeImageName = (value) => {
         return "";
       }
 
-      return decodeURIComponent(uploadsSegment).replace(/^uploads\//, "");
+      return decodeImageNameSafely(uploadsSegment).replace(/^uploads\//, "");
     } catch (error) {
       return "";
     }
   }
 
-  return image.split("/uploads/").pop()?.replace(/^uploads\//, "") || "";
+  const extractedImageName =
+    image.split("/uploads/").pop()?.replace(/^uploads\//, "") || "";
+
+  return decodeImageNameSafely(extractedImageName);
 };
 
 export const buildUploadUrl = (value, baseUrl = API_BASE_URL) => {

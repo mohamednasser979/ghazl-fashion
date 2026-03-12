@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import { formatEGP } from "../utils/pricing";
@@ -6,6 +5,7 @@ import { applyImageFallback, buildUploadFallbackUrl, buildUploadUrl } from "../u
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
+  const [productImageLookup, setProductImageLookup] = useState({});
   const [filters, setFilters] = useState({
     name: "",
     city: "",
@@ -17,8 +17,30 @@ export default function AdminOrders() {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const res = await api.get("/orders");
-      setOrders(res.data);
+      try {
+        const [ordersRes, productsRes] = await Promise.all([
+          api.get("/orders"),
+          api.get("/products"),
+        ]);
+
+        setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
+
+        const nextLookup = {};
+        const products = Array.isArray(productsRes.data) ? productsRes.data : [];
+
+        products.forEach((product) => {
+          const normalizedName = String(product?.name || "").trim().toLowerCase();
+          const productImage = product?.images?.[0] || product?.image || "";
+
+          if (normalizedName && productImage && !nextLookup[normalizedName]) {
+            nextLookup[normalizedName] = productImage;
+          }
+        });
+
+        setProductImageLookup(nextLookup);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
     };
 
     fetchOrders();
@@ -58,20 +80,49 @@ export default function AdminOrders() {
     return <span className="badge bg-secondary">{status}</span>;
   };
 
-  const resolveImageSrc = (value) => {
-    if (!value) return "";
+  const resolveImageSrc = (item) => {
+    const fallbackByName =
+      productImageLookup[String(item?.name || "").trim().toLowerCase()] || "";
 
-    const image = String(value).trim();
-    if (!image) return "";
+    const candidates = [
+      item?.image,
+      item?.imageUrl,
+      item?.images?.[0],
+      item?.productId?.images?.[0],
+      item?.productId?.image,
+      fallbackByName,
+    ];
 
-    return buildUploadUrl(image);
+    for (const candidate of candidates) {
+      if (!candidate) continue;
+
+      const raw = String(candidate).trim();
+      if (!raw) continue;
+
+      if (raw.startsWith("/images/")) {
+        return raw;
+      }
+
+      if (/^https?:\/\//i.test(raw)) {
+        return raw;
+      }
+
+      const uploadSrc = buildUploadUrl(raw);
+      if (uploadSrc) {
+        return uploadSrc;
+      }
+    }
+
+    return "";
   };
 
   const filteredOrders = orders.filter((order) => {
+    const orderItems = Array.isArray(order.items) ? order.items : [];
+
     const matchName =
       filters.name === "" ||
-      order.items.some((i) =>
-        i.name.toLowerCase().includes(filters.name.toLowerCase())
+      orderItems.some((i) =>
+        String(i?.name || "").toLowerCase().includes(filters.name.toLowerCase())
       );
 
     const matchCity =
@@ -87,12 +138,16 @@ export default function AdminOrders() {
   });
 
   const nextImage = () => {
+    if (previewImages.length <= 1) return;
+
     setCurrentImage((prev) =>
       prev === previewImages.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = () => {
+    if (previewImages.length <= 1) return;
+
     setCurrentImage((prev) =>
       prev === 0 ? previewImages.length - 1 : prev - 1
     );
@@ -170,8 +225,8 @@ export default function AdminOrders() {
                 <td>{new Date(order.createdAt).toLocaleDateString()}</td>
 
                 <td>
-                  {order.items.map((item, index) => {
-                    const imageSrc = resolveImageSrc(item.image);
+                  {(Array.isArray(order.items) ? order.items : []).map((item, index) => {
+                    const imageSrc = resolveImageSrc(item);
 
                     return (
                       <div key={index} className="mb-2">
@@ -179,21 +234,43 @@ export default function AdminOrders() {
                           {imageSrc && (
                             <img
                               src={imageSrc}
-                              alt=""
+                              alt={`${item.name || "Product"} preview`}
                               width="45"
                               className="me-2 rounded"
                               style={{ cursor: "pointer" }}
                               onError={(event) =>
                                 applyImageFallback(
                                   event,
-                                  buildUploadFallbackUrl(item.image)
+                                  buildUploadFallbackUrl(
+                                    item.image ||
+                                      item?.productId?.images?.[0] ||
+                                      item?.productId?.image ||
+                                      item.imageUrl
+                                  )
                                 )
                               }
                               onClick={() => {
-                                setPreviewImages([imageSrc]);
-                                setCurrentImage(0);
+                                const orderItemImages = (Array.isArray(order.items)
+                                  ? order.items
+                                  : [])
+                                  .map((entry) => resolveImageSrc(entry))
+                                  .filter(Boolean);
+                                const uniqueImages = [...new Set(orderItemImages)];
+                                const selectedIndex = Math.max(
+                                  uniqueImages.indexOf(imageSrc),
+                                  0
+                                );
+
+                                setPreviewImages(uniqueImages);
+                                setCurrentImage(selectedIndex);
                               }}
                             />
+                          )}
+
+                          {!imageSrc && (
+                            <div className="order-item-no-image me-2">
+                              No image
+                            </div>
                           )}
 
                           <div>
@@ -266,6 +343,7 @@ export default function AdminOrders() {
           <div onClick={(e) => e.stopPropagation()}>
             <img
               src={previewImages[currentImage]}
+              alt="Order item preview"
               style={{
                 maxWidth: "80vw",
                 maxHeight: "80vh",

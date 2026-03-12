@@ -3,6 +3,7 @@ import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { formatEGP } from "../utils/pricing";
+import { buildUploadUrl } from "../utils/images";
 
 const GOVERNORATES = [
   "Cairo",
@@ -99,13 +100,28 @@ export default function Checkout() {
 
     const image = String(value).trim();
     if (!image) return "";
+    const decodeSafely = (input) => {
+      let decoded = String(input || "");
+
+      for (let index = 0; index < 2; index += 1) {
+        try {
+          const nextValue = decodeURIComponent(decoded);
+          if (nextValue === decoded) break;
+          decoded = nextValue;
+        } catch (error) {
+          break;
+        }
+      }
+
+      return decoded;
+    };
 
     if (/^https?:\/\//i.test(image)) {
-      return image.split("/uploads/").pop() || "";
+      return decodeSafely(image.split("/uploads/").pop() || "");
     }
 
     const normalized = image.split("/uploads/").pop() || image;
-    return normalized.replace(/^uploads\//, "");
+    return decodeSafely(normalized.replace(/^uploads\//, ""));
   };
 
   const handleChange = (e) => {
@@ -151,12 +167,15 @@ export default function Checkout() {
     try {
       const formattedItems = cart.map((item) => {
         const imageValue = item.image || item.images?.[0] || "";
+        const imageName = extractImageName(imageValue);
 
         return {
+          productId: item._id || item.productId || undefined,
           name: item.name,
           price: item.price,
           qty: item.qty,
-          image: extractImageName(imageValue),
+          image: imageName,
+          imageUrl: buildUploadUrl(imageValue),
           size: item.selectedSize,
           color: item.selectedColor,
         };
